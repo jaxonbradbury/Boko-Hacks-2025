@@ -78,7 +78,7 @@ def create_note():
 
 @notes_bp.route('/search')
 def search_notes():
-    """Search notes with intentional SQL injection vulnerability"""
+    """Search notes with intentional SQL injection vulnerability (modified to filter by logged-in user)"""
     if 'user' not in session:
         return jsonify({'success': False, 'error': 'Not logged in'}), 401
         
@@ -90,7 +90,8 @@ def search_notes():
     print(f"Search query: {query}")
     
     try:
-        sql = f"SELECT * FROM notes WHERE title LIKE '%{query}%' OR content LIKE '%{query}%'"
+        # Modified SQL: restrict results to only those notes that belong to the logged-in user.
+        sql = f"SELECT * FROM notes WHERE (title LIKE '%{query}%' OR content LIKE '%{query}%') AND user_id = {current_user.id}"
         
         # Log the raw SQL for debugging
         print(f"Executing SQL: {sql}")
